@@ -1,10 +1,14 @@
 /**
- * treinado por gradiente descendente para aproximar a função y = 2x.
+ * Treinamento para uma função linear de apenas um parâmetro
  */
 
 #include <stdio.h>
 #include "header.h"
 #include <math.h>
+
+float calcular_funcao(double x) {
+    return (x * 4) + 10;
+}
 
 void converter_valores_y(Dados& dados) {
     double media, desvio;
@@ -23,7 +27,7 @@ void converter_valores_x(Dados& dados) {
 
     for (int i=0; i<N; i++) {
         dados.data_x[i] = (dados.data_x[i] - media) / desvio;
-        dados.data_y[i] = dados.data_x[i] * 2;
+        dados.data_y[i] = calcular_funcao(dados.data_x[i]);
     }
 }
 
@@ -35,9 +39,8 @@ int main() {
 
     carregar_dados(dados);
 
-    //testar_dados(dados);
-
     converter_valores_x(dados);
+    //testar_dados(dados);
 
     treinar_erro_quadratico_medio(dados);
 
@@ -47,64 +50,41 @@ int main() {
 void carregar_dados(Dados& dados) {
     for (int i=0; i<N; i++) {
         dados.data_x[i] = i;
-        dados.data_y[i] = 2 * i;
+        dados.data_y[i] = calcular_funcao(dados.data_x[i]);
     }
 }
 
 void testar_dados(Dados& dados) {
     printf("\nValores de x: \n");
     for (int i=0; i<N; i++) {
-        printf(" %.0f ", dados.data_x[i]);
+        printf(" %.2f ", dados.data_x[i]);
     }
 
     printf("\nValores de y: \n");
     for (int i=0; i<N; i++) {
-        printf(" %.0f ", dados.data_y[i]);
+        printf(" %.2f ", dados.data_y[i]);
     }
 }
 
 void treinar_erro_quadratico_medio(Dados& dados) {
-    double x, y_true, y_pred, error, gradiente;
-    for (int epoca = 0; epoca < 1; epoca++) {
+    double x, y_true, y_pred, error;
+    for (int epoca = 0; epoca < 100; epoca++) {
         for (int i=0; i < N; i++) {
             x = dados.data_x[i];
             y_true = dados.data_y[i];
 
             y_pred = dados.weight * x + dados.bias;
 
-            error = y_pred - y_true;
+            error  = y_pred - y_true;          // ERROR = PREVISÃO – REAL
 
-            //if (i == 19) printf("\n[%d]{peso: %.4f, x: %.4f, y: %.4f}", i, dados.weight, x, y_true);
-            gradiente = (-2 * x) * (y_true - dados.weight * x - dados.bias);
-            //gradiente = -2 * x * error;
-            dados.weight = dados.weight - (dados.lr * gradiente);
-            dados.bias = dados.lr * error;
+            double grad_w = 2 * x * error;     // ∂/∂w MSE = (2)(x)(y_pred - y_true)
+            double grad_b = 2 * error;         // ∂/∂b MSE = (2)(y_pred - y_true)
+
+            dados.weight -= dados.lr * grad_w; // peso = peso - lr * grad_w
+            dados.bias   -= dados.lr * grad_b; // bias = bias - lr * grad_b
+
             printf("\nAprendido: y = %.4f * X + %.4f", dados.weight, dados.bias);
-            //printf("\n[%d]: %.4f", i, gradiente);
         }
-    }
-}
-
-void treinar_batch(Dados& dados) {
-    double x, y_true, y_pred, error, gradiente=0;
-    for (int epoca = 0; epoca < 1; epoca++) {
-        for (int i=0; i < N; i++) {
-            x = dados.data_x[i];
-
-            y_true = dados.data_y[i];
-
-            y_pred = dados.weight * x + dados.bias;
-
-            error += y_pred - y_true;
-
-            gradiente += (-2 * x) * (y_true - dados.weight * x);
-
-        }
-        dados.weight = dados.weight - (dados.lr * (gradiente / N));
-
-        dados.bias = dados.lr * error / N;
-
-        printf("\nAprendido: y = %.4f * X + %.4f", dados.weight, dados.bias);
     }
 }
 

@@ -1,4 +1,4 @@
-#define N 1000
+#define N 100
 
 typedef struct tDados {
     double data_x[N];
