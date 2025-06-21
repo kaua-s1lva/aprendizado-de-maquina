@@ -1,9 +1,11 @@
-#define N 100
+#define N 10
 
 typedef struct tDados {
     double data_x[N];
     double data_y[N];
-    double weight;
+    double data_z[N][N];
+    double weight_x;
+    double weight_y;
     double bias;
     double lr;
 } Dados;
